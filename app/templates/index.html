@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI MonsterUI App</title>
+    
+    <!-- MonsterUI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monsterui@0.1.2/dist/css/monster.min.css">
+    
+    <!-- Optional: Add custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Welcome to FastAPI MonsterUI App</h1>
+        </header>
+        
+        <main class="content">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Getting Started</h2>
+                    <p>This is your new FastAPI application with MonsterUI!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MonsterUI JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/monsterui@0.1.2/dist/js/monster.min.js"></script>
+</body>
+</html> 
