@@ -34,6 +34,7 @@ pip install -r requirements.txt
 ```
 
 ## Project Structure 
+```bash
 .
 ├── app/
 │ ├── api/
@@ -54,6 +55,7 @@ pip install -r requirements.txt
 ├── pytest.ini
 ├── README.md
 └── requirements.txt
+```
 
 ## Running the Application
 
