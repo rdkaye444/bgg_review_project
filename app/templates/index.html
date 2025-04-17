@@ -8,20 +8,83 @@
     <!-- MonsterUI CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monsterui@0.1.2/dist/css/monster.min.css">
     
-    <!-- Optional: Add custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}" type="text/css">
+
+    <style>
+        /* Fallback styles in case the external CSS doesn't load */
+        .pane-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            height: calc(100vh - 150px);
+        }
+        
+        .pane {
+            flex: 1;
+            border: 4px solid #000000;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <header class="header">
             <h1>Welcome to FastAPI MonsterUI App</h1>
         </header>
         
-        <main class="content">
-            <div class="card">
-                <div class="card-body">
-                    <h2>Getting Started</h2>
-                    <p>This is your new FastAPI application with MonsterUI!</p>
+        <main class="pane-container">
+            <div class="pane left-pane">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2>Dataset Overview</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Total Games: {{ total_games }}</p>
+                        <p>Average Rating: {{ avg_rating }}</p>
+                        <p>Average Complexity: {{ avg_complexity }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pane center-pane">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2>Most Rated Games</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Year</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for game in recent_games %}
+                                <tr>
+                                    <td>{{ game.name }}</td>
+                                    <td>{{ game.year_published }}</td>
+                                    <td>{{ "%.2f"|format(game.rating_average) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pane right-pane">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2>Right Pane</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Right pane content goes here</p>
+                    </div>
                 </div>
             </div>
         </main>

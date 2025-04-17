@@ -38,4 +38,8 @@ Thumbs.db
 .coverage
 htmlcov/
 coverage.xml
-.pytest_cache/ 
+.pytest_cache/
+
+# Logs
+logs/
+*.log 
