@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -88,6 +88,8 @@ async def home(request: Request):
         total_games = len(df)
         avg_rating = df['rating_average'].mean()
         avg_complexity = df['complexity_average'].mean()
+        # Get all games sorted by name
+        all_games = df.sort_values('name')[['name', 'id']].to_dict('records')
         logger.debug(df)
         logger.debug(f"Calculated statistics: games={total_games}, avg_rating={avg_rating:.2f}, avg_complexity={avg_complexity:.2f}")
         
@@ -98,12 +100,22 @@ async def home(request: Request):
                 "total_games": total_games,
                 "avg_rating": f"{avg_rating:.2f}",
                 "avg_complexity": f"{avg_complexity:.2f}",
-                "recent_games": df.nlargest(5, 'users_rated')[['name', 'year_published', 'rating_average']].to_dict('records')
+                "recent_games": df.nlargest(5, 'users_rated')[['name', 'year_published', 'rating_average']].to_dict('records'),
+                "all_games": all_games
             }
         )
     except Exception as e:
         logger.error(f"Error processing home page request: {str(e)}")
         raise
+
+@app.get("/game/{game_id}")
+async def get_game_details(game_id: int):
+    try:
+        game = df[df['id'] == game_id].iloc[0].to_dict()
+        return game
+    except Exception as e:
+        logger.error(f"Error fetching game details: {str(e)}")
+        raise HTTPException(status_code=404, detail="Game not found")
 
 if __name__ == "__main__":
     import uvicorn
