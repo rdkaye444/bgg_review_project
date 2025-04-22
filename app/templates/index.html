@@ -206,22 +206,37 @@
             const gameButtons = document.querySelectorAll('.game-button');
             const gameDetailsContainer = document.getElementById('gameDetails');
             const notesTextarea = document.querySelector('.game-notes textarea');
-            
-            // Store game notes in memory
-            const gameNotes = {};
             let currentGameId = null;
 
             // Function to save notes for the current game
-            function saveCurrentGameNotes() {
+            async function saveCurrentGameNotes() {
                 if (currentGameId) {
-                    gameNotes[currentGameId] = notesTextarea.value;
+                    try {
+                        await fetch(`/game/${currentGameId}/notes`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                note_text: notesTextarea.value
+                            })
+                        });
+                    } catch (error) {
+                        console.error('Error saving notes:', error);
+                    }
                 }
             }
 
             // Function to load notes for a game
-            function loadGameNotes(gameId) {
-                currentGameId = gameId;
-                notesTextarea.value = gameNotes[gameId] || '';
+            async function loadGameNotes(gameId) {
+                try {
+                    const response = await fetch(`/game/${gameId}/notes`);
+                    const data = await response.json();
+                    notesTextarea.value = data.note_text || '';
+                } catch (error) {
+                    console.error('Error loading notes:', error);
+                    notesTextarea.value = '';
+                }
             }
 
             // Save notes when textarea loses focus
@@ -230,15 +245,14 @@
             gameButtons.forEach(button => {
                 button.addEventListener('click', async function() {
                     const gameId = this.dataset.gameId;
+                    currentGameId = gameId;
+                    
                     try {
                         const response = await fetch(`/game/${gameId}`);
                         const game = await response.json();
                         
-                        // Save any existing notes before switching games
-                        saveCurrentGameNotes();
-                        
                         // Load notes for the new game
-                        loadGameNotes(gameId);
+                        await loadGameNotes(gameId);
                         
                         // Format the game details
                         const detailsHtml = `

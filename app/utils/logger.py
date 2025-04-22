@@ -1,6 +1,9 @@
 import logging
+import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
 
 # Create logs directory if it doesn't exist
 log_dir = Path("logs")
@@ -8,9 +11,10 @@ log_dir.mkdir(exist_ok=True)
 
 # Configure logging
 def setup_logger():
-    logger = logging.getLogger('bgg_app')
-    logger.setLevel(logging.DEBUG)
-
+    load_dotenv()
+    logger = logging.getLogger(os.getenv('LOGGER_NAME', 'bgg_app'))
+    logger.setLevel(os.getenv("LOGGING_LEVEL", "INFO"))
+    print(f"Logging level detected: {os.getenv('LOGGING_LEVEL')}")
     # Create formatters
     file_formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
