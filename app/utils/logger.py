@@ -25,12 +25,12 @@ def setup_logger():
 
     # File handler
     file_handler = logging.FileHandler('logs/app.log')
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(os.getenv('LOGGING_LEVEL'))
     file_handler.setFormatter(file_formatter)
 
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(os.getenv('LOGGING_LEVEL'))
     console_handler.setFormatter(console_formatter)
 
     # Add handlers to logger

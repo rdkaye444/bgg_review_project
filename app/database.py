@@ -8,18 +8,17 @@ from sqlalchemy import URL
 from dotenv import load_dotenv
 
 logger = logging.getLogger(os.getenv("LOGGER_NAME"))
-
 # This creates globals that are updated during init in __init__.py
 engine = None
 SessionLocal = None
+Base = declarative_base()  # Create the declarative base
 
 # Load environment variables
 load_dotenv()
+logger=logging.getLogger(os.getenv('LOGGER_NAME'))
 
 
 def init_db():
-    print("Setting up Logger")
-    print("Log setup complete")
     # Load environment variables
     db_config_dict = {
         "username": os.getenv('DB_USERNAME', None),
@@ -46,7 +45,7 @@ def init_db():
         
         # Create SessionLocal class
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-        logger.debug("Created session maker")
+        logger.info("Created session maker")
         
         return engine, SessionLocal
         

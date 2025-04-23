@@ -4,7 +4,6 @@ import os
 import logging
 
 # Set up logger
-print('setting up logger')
 setup_logger()
 
 # Then initialize database
