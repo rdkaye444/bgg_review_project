@@ -39,10 +39,22 @@ try:
     }
     
     # Clean data
+    # Rename Columns to reflect python naming
     df = df.rename(columns=COLUMN_MAPPING)
+    # Adjust European numbering (with commas) with US decimal numbers
     df['rating_average'] = df['rating_average'].str.replace(',','.').astype(float)
     df['complexity_average'] = df['complexity_average'].str.replace(',','.').astype(float)
-    logger.info(f"Successfully loaded and processed {len(df)} records from BGG dataset")
+    # Remove Duplicates
+    df.fillna({'domains':'missing'}, inplace=True)
+    df.fillna({'mechanics':'missing'}, inplace=True)
+    df.fillna({'owned_users':'none'}, inplace = True)
+    # Create new column that is a list of mechanics, and set 'missing' to empty list
+    df["mechanics_list"]=df["mechanics"].str.split(',')
+    df["mechanics_list"] = df["mechanics_list"].apply(lambda x: [] if x == ["missing"] else x)
+    # Years should be integers - not floats
+    df["year_published"]=df["year_published"].fillna(1900).astype(int)
+    #df.drop(columns=["id"], inplace=True)
+
     
 except Exception as e:
     logger.error(f"Failed to load or process BGG dataset: {str(e)}")

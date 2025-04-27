@@ -261,17 +261,23 @@
                                 <dt>Year Published:</dt>
                                 <dd>${game.year_published}</dd>
                                 
-                                <dt>Players:</dt>
-                                <dd>${game.min_players} - ${game.max_players}</dd>
+                                <dt>Min Players:</dt>
+                                <dd>${game.min_players}</dd>
+
+                                <dt>Max Players:</dt>
+                                <dd>${game.max_players}</dd>
                                 
                                 <dt>Play Time:</dt>
                                 <dd>${game.play_time} minutes</dd>
                                 
                                 <dt>Minimum Age:</dt>
-                                <dd>${game.min_age}+</dd>
+                                <dd>${game.min_age}</dd>
                                 
                                 <dt>Rating:</dt>
-                                <dd>${game.rating_average.toFixed(2)} (${game.users_rated} ratings)</dd>
+                                <dd>${game.rating_average.toFixed(2)} 
+                                    
+                                <dt>Users Rated:</dt>
+                                <dd>${game.users_rated}</dd>
                                 
                                 <dt>Complexity:</dt>
                                 <dd>${game.complexity_average.toFixed(2)}</dd>
@@ -284,6 +290,9 @@
                                 
                                 <dt>Mechanics:</dt>
                                 <dd>${game.mechanics}</dd>
+
+                                <dt>Mechanics as List:</dt>
+                                <dd>[${game.mechanics_list}]</dd>
                                 
                                 <dt>Domains:</dt>
                                 <dd>${game.domains}</dd>
