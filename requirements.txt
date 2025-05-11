@@ -5,6 +5,7 @@ python-multipart==0.0.9
 pytest==8.0.0
 python-dotenv==1.1.0
 httpx==0.26.0  # For async HTTP client testing
+matplotlib==3.10.1
 pyarrow==19.0.1
 pytest-asyncio==0.23.5  # For async test support
 pytest-cov==4.1.0  # For coverage reporting
