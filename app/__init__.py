@@ -1,3 +1,6 @@
+"""
+Board Game Database Application
+"""
 from .utils.logger import setup_logger
 from .database import init_db
 import os

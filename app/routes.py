@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 from .database import get_db
 import pandas as pd
+from dotenv import load_dotenv
 
-logger = logging.getLogger(os.getenv("LOGGER_NAME"))
+load_dotenv()
+logger=logging.getLogger(os.getenv('LOGGER_NAME'))
 
 # Create router
 router = APIRouter()
@@ -15,46 +17,12 @@ router = APIRouter()
 # Templates configuration
 templates = Jinja2Templates(directory="app/templates")
 
-# Load and process the BGG dataset
+# Load and process the BGG dataset - from the silver data
+# which is enriched with descriptions
 try:
     logger.info("Loading BGG dataset...")
-    df = pd.read_csv('data/bgg_dataset.csv', sep=';')
-    
-    # Column name mapping
-    COLUMN_MAPPING = {
-        "ID": "id",
-        "Name": "name",
-        "Year Published": "year_published",
-        "Min Players": "min_players",
-        "Max Players": "max_players",
-        "Play Time": "play_time",
-        "Min Age": "min_age",
-        "Users Rated": "users_rated",
-        "Rating Average": "rating_average",
-        "BGG Rank": "bgg_rank",
-        "Complexity Average": "complexity_average",
-        "Owned Users": "owned_users",
-        "Mechanics": "mechanics",
-        "Domains": "domains"
-    }
-    
-    # Clean data
-    # Rename Columns to reflect python naming
-    df = df.rename(columns=COLUMN_MAPPING)
-    # Adjust European numbering (with commas) with US decimal numbers
-    df['rating_average'] = df['rating_average'].str.replace(',','.').astype(float)
-    df['complexity_average'] = df['complexity_average'].str.replace(',','.').astype(float)
-    # Remove Duplicates
-    df.fillna({'domains':'missing'}, inplace=True)
-    df.fillna({'mechanics':'missing'}, inplace=True)
-    df.fillna({'owned_users':'none'}, inplace = True)
-    # Create new column that is a list of mechanics, and set 'missing' to empty list
-    df["mechanics_list"]=df["mechanics"].str.split(',')
-    df["mechanics_list"] = df["mechanics_list"].apply(lambda x: [] if x == ["missing"] else x)
-    # Years should be integers - not floats
-    df["year_published"]=df["year_published"].fillna(1900).astype(int)
-    #df.drop(columns=["id"], inplace=True)
-
+    df = pd.read_csv('data/combined_2020.csv', sep=',')
+    logger.info(f"The columns in the df are: {df.columns}")
     
 except Exception as e:
     logger.error(f"Failed to load or process BGG dataset: {str(e)}")
@@ -69,7 +37,7 @@ async def home(request: Request):
         avg_rating = df['rating_average'].mean()
         avg_complexity = df['complexity_average'].mean()
         # Get all games sorted by name
-        all_games = df.sort_values('name')[['name', 'id']].to_dict('records')
+        all_games = df.sort_values('rating_average')[['name', 'id']].to_dict('records')
         
         return templates.TemplateResponse(
             "index.html",
@@ -89,7 +57,11 @@ async def home(request: Request):
 @router.get("/game/{game_id}")
 async def get_game_details(game_id: int):
     try:
+        # Get all game details including description
         game = df[df['id'] == game_id].iloc[0].to_dict()
+        # Ensure description is included (will be None if not found)
+        if 'description' not in game:
+            game['description'] = None
         return game
     except Exception as e:
         logger.error(f"Error fetching game details: {str(e)}")
