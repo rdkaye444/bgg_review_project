@@ -2,7 +2,7 @@
 
 # Variables
 PYTHON = python
-APP_PATH = app/main.py
+APP_PATH = main.py
 VENV_NAME = venv
 VENV_BIN = $(VENV_NAME)/bin
 PYTEST = pytest

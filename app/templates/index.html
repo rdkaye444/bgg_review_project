@@ -39,9 +39,10 @@
 
         .card-body {
             flex: 1;
-            overflow: hidden; /* Important for containing the scroll */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
+            padding: 0; /* Remove default padding */
         }
 
         .game-list-container {
@@ -74,10 +75,17 @@
 
         .game-details {
             padding: 20px;
+            overflow-y: auto;
+            max-height: 100%;
         }
 
         .game-details h3 {
             margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #ffffff;
+            padding: 10px 0;
+            z-index: 1;
         }
 
         .game-details dl {
@@ -92,6 +100,8 @@
 
         .game-details dd {
             margin: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .right-pane {
@@ -206,22 +216,37 @@
             const gameButtons = document.querySelectorAll('.game-button');
             const gameDetailsContainer = document.getElementById('gameDetails');
             const notesTextarea = document.querySelector('.game-notes textarea');
-            
-            // Store game notes in memory
-            const gameNotes = {};
             let currentGameId = null;
 
             // Function to save notes for the current game
-            function saveCurrentGameNotes() {
+            async function saveCurrentGameNotes() {
                 if (currentGameId) {
-                    gameNotes[currentGameId] = notesTextarea.value;
+                    try {
+                        await fetch(`/game/${currentGameId}/notes`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                note_text: notesTextarea.value
+                            })
+                        });
+                    } catch (error) {
+                        console.error('Error saving notes:', error);
+                    }
                 }
             }
 
             // Function to load notes for a game
-            function loadGameNotes(gameId) {
-                currentGameId = gameId;
-                notesTextarea.value = gameNotes[gameId] || '';
+            async function loadGameNotes(gameId) {
+                try {
+                    const response = await fetch(`/game/${gameId}/notes`);
+                    const data = await response.json();
+                    notesTextarea.value = data.note_text || '';
+                } catch (error) {
+                    console.error('Error loading notes:', error);
+                    notesTextarea.value = '';
+                }
             }
 
             // Save notes when textarea loses focus
@@ -230,15 +255,14 @@
             gameButtons.forEach(button => {
                 button.addEventListener('click', async function() {
                     const gameId = this.dataset.gameId;
+                    currentGameId = gameId;
+                    
                     try {
                         const response = await fetch(`/game/${gameId}`);
                         const game = await response.json();
                         
-                        // Save any existing notes before switching games
-                        saveCurrentGameNotes();
-                        
                         // Load notes for the new game
-                        loadGameNotes(gameId);
+                        await loadGameNotes(gameId);
                         
                         // Format the game details
                         const detailsHtml = `
@@ -247,17 +271,23 @@
                                 <dt>Year Published:</dt>
                                 <dd>${game.year_published}</dd>
                                 
-                                <dt>Players:</dt>
-                                <dd>${game.min_players} - ${game.max_players}</dd>
+                                <dt>Min Players:</dt>
+                                <dd>${game.min_players}</dd>
+
+                                <dt>Max Players:</dt>
+                                <dd>${game.max_players}</dd>
                                 
                                 <dt>Play Time:</dt>
                                 <dd>${game.play_time} minutes</dd>
                                 
                                 <dt>Minimum Age:</dt>
-                                <dd>${game.min_age}+</dd>
+                                <dd>${game.min_age}</dd>
                                 
                                 <dt>Rating:</dt>
-                                <dd>${game.rating_average.toFixed(2)} (${game.users_rated} ratings)</dd>
+                                <dd>${game.rating_average.toFixed(2)} 
+                                    
+                                <dt>Users Rated:</dt>
+                                <dd>${game.users_rated}</dd>
                                 
                                 <dt>Complexity:</dt>
                                 <dd>${game.complexity_average.toFixed(2)}</dd>
@@ -270,9 +300,15 @@
                                 
                                 <dt>Mechanics:</dt>
                                 <dd>${game.mechanics}</dd>
+
+                                <dt>Mechanics as List:</dt>
+                                <dd>[${game.mechanics_list}]</dd>
                                 
                                 <dt>Domains:</dt>
                                 <dd>${game.domains}</dd>
+
+                                <dt>Description:</dt>
+                                <dd>${game.description || 'No description available'}</dd>
                             </dl>
                         `;
                         
